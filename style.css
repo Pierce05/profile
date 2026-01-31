@@ -14,6 +14,8 @@
 
   /* Accent (OFF for now) */
   --accent: #ffffff;
+  --drizz: #bfbfbf; /* soft silver-grey, not bright */
+
 }
 
 * {
@@ -35,6 +37,24 @@ body {
 a {
   color: var(--muted);
   text-decoration: none;
+  position: relative;
+}
+
+
+a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: var(--text);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+a:hover::after {
+  opacity: 0.6;
 }
 
 a:hover {
@@ -62,6 +82,7 @@ a:hover {
 
 .left h1 {
   font-size: 3.2rem;
+  font-weight: 500;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -73,7 +94,7 @@ a:hover {
 }
 
 .tagline {
-  margin-top: 28px;
+  margin-top: 14px;
   color: var(--faint);
   max-width: 320px;
   line-height: 1.7;
@@ -85,11 +106,22 @@ nav a {
   font-size: 0.85rem;
   letter-spacing: 0.15em;
 }
+.socials img {
+  width: 18px;
+  margin-right: 16px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.socials img:hover {
+  opacity: 1;
+}
 
 /* RIGHT */
 .right {
   width: 60%;
   padding: 80px 40px;
+  max-width: 700px;
 }
 
 section {
@@ -114,6 +146,27 @@ section h3 {
   margin-bottom: 24px;
   transition: transform 0.2s ease, background 0.2s ease;
 }
+.project h4 {
+  margin-bottom: 8px;
+}
+
+.project.featured {
+  border: 1px solid #2a2a2a;
+}
+
+.project-links {
+  margin-top: 16px;
+}
+
+.project-links a {
+  margin-right: 16px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.project-links a:hover {
+  color: var(--text);
+}
 
 .project:hover {
   transform: translateY(-2px);
@@ -124,11 +177,51 @@ section h3 {
   );
 }
 
+.about-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+.faint {
+  color: var(--faint);
+  font-size: 0.9rem;
+}
+
+
+.about-image img {
+  width: 100%;
+  max-width: 220px;
+  border-radius: 12px;
+  filter: grayscale(100%);
+  opacity: 0.8;
+}
+
+.about-image img:hover {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+.highlight {
+  color: var(--text);
+}
+.skills-line {
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.8;
+}
 
 /* MOBILE */
-@media (max-width: 900px) {
+@media (max-width: 600px) {
   .layout {
     flex-direction: column;
+  }
+   .tagline {
+    max-width: 100%;
+  }
+
+  .left {
+    padding-bottom: 40px;
   }
 
   .left, .right {
