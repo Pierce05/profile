@@ -259,9 +259,14 @@ section h3 {
   max-width: 520px;
   line-height: 1.8;
 }
+.socials {
+  display: flex;
+  align-items: center;
+}
+
 .socials a {
   color: var(--muted);
-  margin-right: 16px;
+  margin-right: 18px;
   transition: color 0.2s ease;
 }
 
@@ -270,10 +275,10 @@ section h3 {
 }
 
 .socials svg {
-  width: 18px;
-  height: 18px;
+  width: 22px;      /* ↑ bigger */
+  height: 22px;
   fill: currentColor;
-  opacity: 0.7;
+  opacity: 0.75;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
@@ -281,7 +286,6 @@ section h3 {
   opacity: 1;
   transform: translateY(-1px);
 }
-
 
 /* MOBILE */
 @media (max-width: 600px) {
