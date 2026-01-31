@@ -171,12 +171,9 @@
 
   </div>
   <script>
-  const intro = document.getElementById("intro");
-
-  if (sessionStorage.getItem("seenIntro")) {
-    intro.remove();
-  } else {
-    sessionStorage.setItem("seenIntro", "true");
+  window.addEventListener("DOMContentLoaded", () => {
+    const intro = document.getElementById("intro");
+    if (!intro) return;
 
     const dismiss = () => {
       intro.classList.add("fade-out");
@@ -186,9 +183,8 @@
 
     intro.addEventListener("click", dismiss);
     window.addEventListener("scroll", dismiss);
-  }
-  console.log("intro script loaded");
-
+  });
 </script>
+
 </body>
 </html>
