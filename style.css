@@ -102,15 +102,15 @@ a:hover {
 .tech-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
+  gap: 10px;
+  margin-top: 16px;
   padding: 0;
   list-style: none;
 }
 
 .tech-list li {
-  font-size: 0.8rem;          /* ↑ from 0.75 */
-  padding: 6px 12px;
+  font-size: 0.89rem;          /* ↑ from 0.75 */
+  padding: 8px 14px;
   border-radius: 999px;
   background: #1a1a1a;
   color: var(--muted);
@@ -118,9 +118,11 @@ a:hover {
 }
 
 .tech-list li:hover {
-  background: #222222;        /* lighter grey */
-  color: var(--text);         /* readable but not flashy */
+  background: #262626;    /* noticeably lighter */
+  color: var(--text);
+  transform: translateY(-1px);
 }
+
 
 .tech-list.skills li {
   background: #141414;
@@ -128,7 +130,7 @@ a:hover {
 }
 
 .tech-list.skills li:hover {
-  background: #1c1c1c;
+  background: #222222; 
   color: var(--muted);
 }
 
