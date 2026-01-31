@@ -7,24 +7,7 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 
-<script>
-  const intro = document.getElementById("intro");
 
-  if (sessionStorage.getItem("seenIntro")) {
-    intro.remove();
-  } else {
-    sessionStorage.setItem("seenIntro", "true");
-
-    const dismiss = () => {
-      intro.classList.add("fade-out");
-      setTimeout(() => intro.remove(), 900);
-      window.removeEventListener("scroll", dismiss);
-    };
-
-    intro.addEventListener("click", dismiss);
-    window.addEventListener("scroll", dismiss);
-  }
-</script>
 
 
 <body>
@@ -187,5 +170,25 @@
     </main>
 
   </div>
+  <script>
+  const intro = document.getElementById("intro");
+
+  if (sessionStorage.getItem("seenIntro")) {
+    intro.remove();
+  } else {
+    sessionStorage.setItem("seenIntro", "true");
+
+    const dismiss = () => {
+      intro.classList.add("fade-out");
+      setTimeout(() => intro.remove(), 900);
+      window.removeEventListener("scroll", dismiss);
+    };
+
+    intro.addEventListener("click", dismiss);
+    window.addEventListener("scroll", dismiss);
+  }
+  console.log("intro script loaded");
+
+</script>
 </body>
 </html>
