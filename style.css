@@ -109,15 +109,27 @@ a:hover {
 }
 
 .tech-list li {
-  font-size: 0.75rem;
-  padding: 6px 10px;
+  font-size: 0.8rem;          /* ↑ from 0.75 */
+  padding: 6px 12px;
   border-radius: 999px;
   background: #1a1a1a;
   color: var(--muted);
+  transition: background 0.2s ease, color 0.2s ease;
 }
+
+.tech-list li:hover {
+  background: #222222;        /* lighter grey */
+  color: var(--text);         /* readable but not flashy */
+}
+
 .tech-list.skills li {
   background: #141414;
   color: var(--faint);
+}
+
+.tech-list.skills li:hover {
+  background: #1c1c1c;
+  color: var(--muted);
 }
 
 
@@ -144,17 +156,22 @@ nav a {
   padding: 80px 40px;
   max-width: 700px;
 }
+.right p {
+  line-height: 1.75;
+}
+
 
 section {
   margin-bottom: 120px;
 }
 
 section h3 {
-  font-size: 0.75rem;
-  letter-spacing: 0.18em;
-  color: var(--faint);
-  margin-bottom: 32px;
+  font-size: 0.9rem;          /* ↑ slightly bigger */
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-bottom: 36px;
 }
+
 #about h3 {
   font-size: 0.85rem;
   color: var(--muted);
@@ -171,8 +188,10 @@ section h3 {
   transition: transform 0.2s ease, background 0.2s ease;
 }
 .project h4 {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  font-size: 1.05rem;
 }
+
 
 .project.featured {
   border: 1px solid #2a2a2a;
@@ -214,20 +233,22 @@ section h3 {
   font-size: 0.9rem;
 }
 
-
 .about-image img {
   width: 100%;
   max-width: 220px;
   border-radius: 12px;
-  filter: grayscale(100%) contrast(0.9);
-  opacity: 0.8;
-  transition: filter 0.3s ease, opacity 0.3s ease;
+
+  filter: grayscale(100%) brightness(0.9);
+  opacity: 0.75;
+
+  transition: filter 0.35s ease, opacity 0.35s ease;
 }
 
 .about-image img:hover {
-  filter: grayscale(0%) contrast(1);
+  filter: grayscale(0%) brightness(1);
   opacity: 1;
 }
+
 
 
 .highlight {
