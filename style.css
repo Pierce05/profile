@@ -1,23 +1,36 @@
 :root {
-  --bg: #000000;
-  --panel: #0f0f0f;
-  --text: #e6e6e6;
-  --muted: #a1a1a1;
-  --border: #1f1f1f;
+  /* Core blacks */
+  --bg: #0b0b0b;          /* page background */
+  --panel: #111111;       /* cards / panels */
+  --panel-soft: #151515;  /* hover / subtle depth */
 
-  /* accent comes later */
+  /* Text */
+  --text: #e5e5e5;        /* main text */
+  --muted: #9a9a9a;       /* secondary text */
+  --faint: #6f6f6f;       /* very low emphasis */
+
+  /* Structure */
+  --border: #1c1c1c;
+
+  /* Accent (OFF for now) */
   --accent: #ffffff;
 }
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: radial-gradient(
+    circle at top,
+    #101010,
+    var(--bg)
+  );
   color: var(--text);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
 
 a {
   color: var(--muted);
@@ -48,8 +61,9 @@ a:hover {
 }
 
 .left h1 {
-  font-size: 3rem;
+  font-size: 3.2rem;
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .left h2 {
@@ -59,9 +73,10 @@ a:hover {
 }
 
 .tagline {
-  margin-top: 24px;
-  color: var(--muted);
-  max-width: 300px;
+  margin-top: 28px;
+  color: var(--faint);
+  max-width: 320px;
+  line-height: 1.7;
 }
 
 nav a {
@@ -82,19 +97,33 @@ section {
 }
 
 section h3 {
-  font-size: 0.85rem;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-  margin-bottom: 24px;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  color: var(--faint);
+  margin-bottom: 32px;
 }
 
 .project {
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin-bottom: 20px;
-  background: var(--panel);
+  padding: 24px;
+  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    var(--panel),
+    var(--panel-soft)
+  );
+  margin-bottom: 24px;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
+
+.project:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(
+    180deg,
+    var(--panel-soft),
+    var(--panel)
+  );
+}
+
 
 /* MOBILE */
 @media (max-width: 900px) {
