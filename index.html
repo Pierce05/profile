@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -73,18 +73,18 @@
   <div class="about-grid">
     <div class="about-text">
       <p>
-        Hi, I’m <span class="highlight">Purvanshi </span>.
+        Hi, Iâ€™m <span class="highlight">Purvanshi </span>.
         A Computer Science major, graduating in 2029.
       </p>
 
       <p>
-        I’ve built a handful of projects so far and I’m currently building
+        Iâ€™ve built a handful of projects so far and Iâ€™m currently building
         <span class="highlight">Memora</span>, while diving head-first into AI, 
         startups, and figuring out how things actually work under the hood.
       </p>
 
       <p>
-  I’m 20, relentlessly curious, and a jack of all trades.
+  Iâ€™m 20, relentlessly curious, and a jack of all trades.
   I enjoy learning across domains and connecting ideas, which often shapes
   how I approach building and problem-solving.
 </p>
@@ -300,50 +300,73 @@
 
 </section>
 
-      <section id="contact">
+<section id="contact">
   <h3>CONTACT</h3>
 
   <div class="contact-card">
     <div class="contact-copy">
-      <p class="contact-kicker">Open to building, collaborating, and shipping.</p>
-      <h4>shoot me a<br>message</h4>
-      <div class="contact-orbit" aria-hidden="true">
-        <span class="contact-orbit-dot"></span>
+      <h4>Start a conversation.</h4>
+      <p class="contact-intro">
+        I love ambitious ideas. Whether it&rsquo;s AI, startups, research, or
+        building something that probably shouldn&rsquo;t exist, I&rsquo;d love to hear from you.
+      </p>
+      <div class="contact-game">
+        <div class="contact-game-board go-widget">
+          <p class="go-widget-label">Play me</p>
+          <div class="go-widget-body">
+            <div class="go-widget-side go-widget-side-left">
+              <span class="go-side-line"><span class="go-side-stone go-side-stone-player"></span> You</span>
+              <span class="go-side-line"><span class="go-side-stone go-side-stone-ai"></span> AI</span>
+            </div>
+
+            <div class="go-board-wrap">
+              <div class="go-board" role="grid" aria-label="Mini Go board"></div>
+              <button class="go-restart" type="button">Play again</button>
+            </div>
+
+            <div class="go-widget-side go-widget-side-right">
+              <span class="go-side-metric">Best <strong class="go-best">00</strong></span>
+              <span class="go-side-metric">Wins <strong class="go-wins">00</strong></span>
+            </div>
+          </div>
+
+          <div class="go-widget-foot">
+            <div class="go-turn-indicator" aria-hidden="true">
+              <span class="go-turn-dot go-turn-dot-player"></span>
+              <span class="go-turn-dot go-turn-dot-ai"></span>
+            </div>
+            <p class="go-status">Beat me on the 5×5 board</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="contact-panel">
+    <form class="contact-panel" action="https://formsubmit.co/khandelwalpurvanshi@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="New portfolio message" />
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="_template" value="table" />
+
       <div class="contact-lines">
-        <div class="contact-line">
+        <label class="contact-line">
           <span>Name</span>
-          <strong>Purvanshi Khandelwal</strong>
-        </div>
-        <div class="contact-line contact-line-split">
-          <div>
-            <span>Email</span>
-            <strong>khandelwalpurvanshi@gmail.com</strong>
-          </div>
-          <div>
-            <span>Status</span>
-            <strong>Available</strong>
-          </div>
-        </div>
-        <div class="contact-line">
+          <input type="text" name="name" autocomplete="name" required />
+        </label>
+        <label class="contact-line">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label class="contact-line">
           <span>Message</span>
-          <strong>Let’s build something thoughtful, sharp, and memorable.</strong>
-        </div>
+          <textarea name="message" rows="2" required></textarea>
+        </label>
       </div>
 
       <div class="contact-footer">
-        <p class="contact-note">
-          If you have an idea, a project, or just want to talk tech, I’d love to hear from you.
-        </p>
-
-        <a href="mailto:khandelwalpurvanshi@gmail.com" class="contact-arrow" aria-label="Send an email">
+        <button type="submit" class="contact-arrow" aria-label="Send message">
           <span>&rarr;</span>
-        </a>
+        </button>
       </div>
-    </div>
+    </form>
   </div>
 </section>
 
@@ -364,9 +387,328 @@
     intro.addEventListener("click", dismiss);
     window.addEventListener("scroll", dismiss);
   });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const boardEl = document.querySelector(".go-board");
+    const statusEl = document.querySelector(".go-status");
+    const restartEl = document.querySelector(".go-restart");
+    const playerDot = document.querySelector(".go-turn-dot-player");
+    const aiDot = document.querySelector(".go-turn-dot-ai");
+    const bestEl = document.querySelector(".go-best");
+    const winsEl = document.querySelector(".go-wins");
+    if (!boardEl || !statusEl || !restartEl || !playerDot || !aiDot || !bestEl || !winsEl) return;
+
+    const SIZE = 5;
+    const EMPTY = 0;
+    const BLACK = 1;
+    const WHITE = 2;
+    const STORAGE_KEY = "portfolio-go-mini-record-v1";
+    const intersections = [];
+
+    let board = [];
+    let currentPlayer = WHITE;
+    let locked = false;
+    let gameOver = false;
+    let koPoint = null;
+    let stats = { best: 0, wins: 0 };
+
+    try {
+      stats = { ...stats, ...(JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}) };
+    } catch {}
+
+    const updateStatsUi = () => {
+      bestEl.textContent = String(stats.best || 0).padStart(2, "0");
+      winsEl.textContent = String(stats.wins || 0).padStart(2, "0");
+    };
+
+    const saveStats = () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+      updateStatsUi();
+    };
+
+    const playClick = () => {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = 420;
+        gain.gain.value = 0.018;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+        osc.stop(ctx.currentTime + 0.08);
+      } catch {}
+    };
+
+    const keyOf = (row, col) => `${row}-${col}`;
+    const inBounds = (row, col) => row >= 0 && row < SIZE && col >= 0 && col < SIZE;
+    const neighbors = (row, col) => (
+      [
+        [row - 1, col],
+        [row + 1, col],
+        [row, col - 1],
+        [row, col + 1],
+      ].filter(([r, c]) => inBounds(r, c))
+    );
+
+    const cloneBoard = (src) => src.map((line) => [...line]);
+
+    const getGroup = (src, row, col) => {
+      const color = src[row][col];
+      const stack = [[row, col]];
+      const stones = [];
+      const liberties = new Set();
+      const visited = new Set();
+
+      while (stack.length) {
+        const [r, c] = stack.pop();
+        const key = keyOf(r, c);
+        if (visited.has(key)) continue;
+        visited.add(key);
+        stones.push([r, c]);
+
+        neighbors(r, c).forEach(([nr, nc]) => {
+          if (src[nr][nc] === color) {
+            stack.push([nr, nc]);
+          } else if (src[nr][nc] === EMPTY) {
+            liberties.add(keyOf(nr, nc));
+          }
+        });
+      }
+
+      return { stones, liberties };
+    };
+
+    const removeGroup = (src, stones) => {
+      stones.forEach(([r, c]) => {
+        src[r][c] = EMPTY;
+      });
+    };
+
+    const boardFull = (src) => src.every((row) => row.every((cell) => cell !== EMPTY));
+    const countStones = (src, color) => src.flat().filter((cell) => cell === color).length;
+
+    const evaluateMove = (src, row, col, color) => {
+      if (src[row][col] !== EMPTY) return null;
+      if (koPoint && koPoint.row === row && koPoint.col === col) return null;
+
+      const next = cloneBoard(src);
+      next[row][col] = color;
+      const enemy = color === BLACK ? WHITE : BLACK;
+      const captured = [];
+
+      neighbors(row, col).forEach(([nr, nc]) => {
+        if (next[nr][nc] === enemy) {
+          const group = getGroup(next, nr, nc);
+          if (group.liberties.size === 0) {
+            captured.push(...group.stones);
+          }
+        }
+      });
+
+      if (captured.length) removeGroup(next, captured);
+
+      const ownGroup = getGroup(next, row, col);
+      if (ownGroup.liberties.size === 0) return null;
+
+      let nextKo = null;
+      if (captured.length === 1 && ownGroup.stones.length === 1 && ownGroup.liberties.size === 1) {
+        const [liberty] = [...ownGroup.liberties];
+        const [kr, kc] = liberty.split("-").map(Number);
+        nextKo = { row: kr, col: kc };
+      }
+
+      return { board: next, captured, ko: nextKo };
+    };
+
+    const aiChooseMove = () => {
+      const moves = [];
+
+      for (let row = 0; row < SIZE; row += 1) {
+        for (let col = 0; col < SIZE; col += 1) {
+          const result = evaluateMove(board, row, col, BLACK);
+          if (!result) continue;
+
+          let score = result.captured.length * 14;
+          const ownGroup = getGroup(result.board, row, col);
+          if (ownGroup.liberties.size === 1) score -= 8;
+          if (ownGroup.liberties.size === 2) score -= 2;
+
+          neighbors(row, col).forEach(([nr, nc]) => {
+            if (board[nr][nc] === BLACK) score += 3;
+            if (board[nr][nc] === WHITE) score += 2;
+          });
+
+          for (let r = 0; r < SIZE; r += 1) {
+            for (let c = 0; c < SIZE; c += 1) {
+              if (board[r][c] === WHITE) {
+                const group = getGroup(board, r, c);
+                if (group.liberties.has(keyOf(row, col))) score += 4;
+              }
+            }
+          }
+
+          score += Math.random() * 0.8;
+          moves.push({ row, col, result, score });
+        }
+      }
+
+      moves.sort((a, b) => b.score - a.score);
+      return moves[0] || null;
+    };
+
+    const setStatus = (message) => {
+      statusEl.textContent = message;
+    };
+
+    const updateTurnIndicator = () => {
+      playerDot.classList.toggle("is-active", currentPlayer === WHITE && !gameOver);
+      aiDot.classList.toggle("is-active", currentPlayer === BLACK && !gameOver);
+    };
+
+    const renderBoard = (captured = []) => {
+      intersections.forEach((cell, index) => {
+        const row = Math.floor(index / SIZE);
+        const col = index % SIZE;
+        const stone = board[row][col];
+        cell.innerHTML = "";
+        cell.classList.remove("has-black", "has-white", "is-ko");
+
+        if (koPoint && koPoint.row === row && koPoint.col === col) {
+          cell.classList.add("is-ko");
+        }
+
+        if (stone !== EMPTY) {
+          const stoneEl = document.createElement("span");
+          stoneEl.className = `go-stone ${stone === BLACK ? "go-stone-black" : "go-stone-white"}`;
+          stoneEl.classList.add("is-placed");
+          cell.appendChild(stoneEl);
+          cell.classList.add(stone === BLACK ? "has-black" : "has-white");
+        }
+
+        const wasCaptured = captured.some(([r, c]) => r === row && c === col);
+        if (wasCaptured) {
+          const ghost = document.createElement("span");
+          ghost.className = "go-stone go-stone-capture";
+          cell.appendChild(ghost);
+          setTimeout(() => ghost.remove(), 320);
+        }
+      });
+    };
+
+    const finishGame = () => {
+      gameOver = true;
+      locked = true;
+      restartEl.classList.add("is-visible");
+      const blackCount = countStones(board, BLACK);
+      const whiteCount = countStones(board, WHITE);
+
+      if (whiteCount >= blackCount) {
+        stats.wins += 1;
+        stats.best = Math.max(stats.best, whiteCount);
+        saveStats();
+        setStatus("You held the board.");
+      } else {
+        setStatus("The AI edged it.");
+      }
+
+      updateTurnIndicator();
+    };
+
+    const applyMove = (row, col, color, result) => {
+      board = result.board;
+      koPoint = result.ko;
+      currentPlayer = color === BLACK ? WHITE : BLACK;
+      renderBoard(result.captured);
+      playClick();
+      updateTurnIndicator();
+
+      if (boardFull(board)) finishGame();
+    };
+
+    const aiTurn = () => {
+      if (gameOver) return;
+      const choice = aiChooseMove();
+      if (!choice) {
+        finishGame();
+        return;
+      }
+
+      setStatus("Portfolio AI is thinking...");
+      locked = true;
+
+      setTimeout(() => {
+        applyMove(choice.row, choice.col, BLACK, choice.result);
+        if (!gameOver) {
+          locked = false;
+          setStatus("Beat me on the 5×5 board");
+        }
+      }, 300);
+    };
+
+    const resetGame = () => {
+      board = Array.from({ length: SIZE }, () => Array(SIZE).fill(EMPTY));
+      currentPlayer = WHITE;
+      locked = false;
+      gameOver = false;
+      koPoint = null;
+      restartEl.classList.remove("is-visible");
+      setStatus("Beat me on the 5×5 board");
+      renderBoard();
+      updateTurnIndicator();
+    };
+
+    updateStatsUi();
+
+    for (let row = 0; row < SIZE; row += 1) {
+      for (let col = 0; col < SIZE; col += 1) {
+        const point = document.createElement("button");
+        point.type = "button";
+        point.className = "go-point";
+        point.setAttribute("role", "gridcell");
+        point.setAttribute("aria-label", `Row ${row + 1}, column ${col + 1}`);
+        point.addEventListener("click", () => {
+          if (locked || gameOver || currentPlayer !== WHITE) return;
+          const result = evaluateMove(board, row, col, WHITE);
+          if (!result) return;
+          applyMove(row, col, WHITE, result);
+          if (!gameOver) aiTurn();
+        });
+        intersections.push(point);
+        boardEl.appendChild(point);
+      }
+    }
+
+    restartEl.addEventListener("click", resetGame);
+    resetGame();
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const contactCard = document.querySelector(".contact-card");
+    if (!contactCard) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            contactCard.classList.add("is-visible");
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.18 }
+    );
+
+    observer.observe(contactCard);
+  });
 </script>
 
 </body>
 </html>
+
+
+
 
 
