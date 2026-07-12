@@ -291,6 +291,35 @@ section h3 {
   font-size: 0.9rem;
 }
 
+.about-actions {
+  margin-top: 24px;
+}
+
+.resume-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: 1px solid #2a2a2a;
+  border-radius: 999px;
+  background: #151515;
+  color: var(--text);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.resume-button::after {
+  display: none;
+}
+
+.resume-button:hover {
+  background: #1d1d1d;
+  border-color: #3a3a3a;
+  transform: translateY(-1px);
+}
+
 .about-image img {
   width: 100%;
   max-width: 220px;
