@@ -1,0 +1,461 @@
+/* =========================================
+   BLOG / WRITING PAGE
+   ========================================= */
+
+.blog {
+    width: 100%;
+    max-width: 760px;
+
+    margin: 0 auto;
+
+    padding: 42px 32px 100px;
+
+    color: var(--text);
+}
+
+
+/* =========================================
+   TOP HEADER
+   ========================================= */
+
+.blog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 70px;
+}
+
+.blog-header a {
+    color: var(--muted);
+    text-decoration: none;
+
+    font-size: 0.85rem;
+}
+
+.blog-header .author {
+    color: var(--text);
+
+    font-size: 1rem;
+    font-style: italic;
+}
+
+.blog-header .back {
+    color: var(--faint);
+}
+
+.blog-header .back:hover {
+    color: var(--text);
+}
+
+
+/* =========================================
+   ARTICLE
+   ========================================= */
+
+.blog article {
+    width: 100%;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    color: var(--text);
+
+    font-size: 17px;
+    line-height: 1.75;
+}
+
+
+/* =========================================
+   TITLE
+   ========================================= */
+
+.blog article h1 {
+    margin: 0;
+
+    color: #eeeeee;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(2.5rem, 5vw, 3.4rem);
+
+    font-weight: 400;
+
+    font-style: italic;
+
+    line-height: 1.12;
+
+    letter-spacing: -0.045em;
+}
+
+
+/* =========================================
+   DATE
+   ========================================= */
+
+.blog .date {
+    margin-top: 16px;
+    margin-bottom: 62px;
+
+    color: var(--faint);
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    font-size: 0.82rem;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   HEADINGS
+   ========================================= */
+
+.blog article h2 {
+    margin-top: 64px;
+    margin-bottom: 25px;
+
+    color: #dcdcdc;
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    font-size: 1rem;
+
+    font-weight: 600;
+
+    line-height: 1.4;
+
+    letter-spacing: 0.01em;
+}
+
+
+/* =========================================
+   PARAGRAPHS
+   ========================================= */
+
+.blog article p {
+    margin: 0 0 25px;
+
+    color: #c5c5c5;
+
+    font-size: 17px;
+
+    line-height: 1.78;
+}
+
+
+/* =========================================
+   LINKS
+   ========================================= */
+
+.blog article a {
+    color: #d7d7d7;
+
+    text-decoration: underline;
+
+    text-decoration-color: #555;
+
+    text-underline-offset: 3px;
+}
+
+.blog article a:hover {
+    color: #ffffff;
+}
+
+
+/* =========================================
+   INLINE CODE
+   ========================================= */
+
+.blog article code {
+    padding: 2px 5px;
+
+    background: #151515;
+
+    border: 1px solid #1c1c1c;
+
+    border-radius: 3px;
+
+    color: #d6d6d6;
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        Menlo,
+        monospace;
+
+    font-size: 0.86em;
+}
+
+
+/* =========================================
+   CODE BLOCKS
+   ========================================= */
+
+.blog article pre {
+    width: 100%;
+
+    margin: 30px 0;
+
+    padding: 18px 20px;
+
+    overflow-x: auto;
+
+    background: #111111;
+
+    border: 1px solid #1c1c1c;
+
+    border-radius: 5px;
+
+    color: #cfcfcf;
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        Menlo,
+        monospace;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+}
+
+.blog article pre code {
+    padding: 0;
+
+    background: transparent;
+
+    border: none;
+
+    color: inherit;
+
+    font-size: inherit;
+}
+
+
+/* =========================================
+   BLOCKQUOTES
+   ========================================= */
+
+.blog article blockquote {
+    margin: 30px 0;
+
+    padding: 0 0 0 24px;
+
+    border-left: 3px solid #d0d0d0;
+
+    color: #a5a5a5;
+
+    font-size: 16px;
+
+    font-style: italic;
+
+    line-height: 1.75;
+}
+
+.blog article blockquote p {
+    margin-bottom: 0;
+}
+
+
+/* =========================================
+   LISTS
+   ========================================= */
+
+.blog article ul,
+.blog article ol {
+    margin: 0 0 28px;
+
+    padding-left: 28px;
+
+    color: #c5c5c5;
+}
+
+.blog article li {
+    margin-bottom: 8px;
+
+    padding-left: 4px;
+}
+
+
+/* =========================================
+   STRONG
+   ========================================= */
+
+.blog article strong {
+    color: #eeeeee;
+
+    font-weight: 600;
+}
+
+
+/* =========================================
+   IMAGES
+   ========================================= */
+
+.blog article img {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    margin: 32px 0;
+
+    border-radius: 4px;
+
+    opacity: 0.92;
+}
+
+
+/* =========================================
+   IMAGE CAPTION
+   ========================================= */
+
+.blog article .caption {
+    margin-top: -18px;
+    margin-bottom: 35px;
+
+    color: var(--faint);
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    font-size: 0.72rem;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   HORIZONTAL RULE
+   ========================================= */
+
+.blog article hr {
+    margin: 60px 0;
+
+    border: 0;
+
+    border-top: 1px solid var(--border);
+}
+
+
+/* =========================================
+   FOOTER
+   ========================================= */
+
+.blog-footer {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-top: 90px;
+
+    padding-top: 25px;
+
+    border-top: 1px solid var(--border);
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    font-size: 0.78rem;
+}
+
+.blog-footer a {
+    color: var(--faint);
+
+    text-decoration: none;
+}
+
+.blog-footer a:hover {
+    color: var(--text);
+}
+
+.blog-footer .socials {
+    display: flex;
+
+    gap: 18px;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+    .blog {
+        width: 100%;
+
+        padding: 28px 20px 70px;
+    }
+
+    .blog-header {
+        margin-bottom: 55px;
+    }
+
+    .blog article {
+        font-size: 16px;
+    }
+
+    .blog article h1 {
+        font-size: 2.45rem;
+
+        line-height: 1.12;
+    }
+
+    .blog .date {
+        margin-bottom: 50px;
+    }
+
+    .blog article h2 {
+        margin-top: 52px;
+
+        font-size: 0.95rem;
+    }
+
+    .blog article p {
+        font-size: 16px;
+
+        line-height: 1.75;
+    }
+
+    .blog article pre {
+        margin-left: 0;
+        margin-right: 0;
+
+        padding: 15px;
+
+        font-size: 12px;
+    }
+
+    .blog article blockquote {
+        padding-left: 18px;
+    }
+
+    .blog-footer {
+        margin-top: 65px;
+    }
+}

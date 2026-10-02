@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Seven Checks, Three Real Bugs: Building a Hackathon Platform for the Thing That Judges You</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="writing.css">
+</head>
+
+<body>
+
+    <main class="blog">
+
+        <header class="blog-header">
+
+            <a href="index.html" class="author">
+                Purvanshi
+            </a>
+
+            <a href="index.html" class="back">
+                ← back to portfolio
+            </a>
+
+        </header>
+
+
+        <article>
+
+            <h1>
+                <em>Seven Checks, Three Real Bugs: Building a Hackathon Platform for the Thing That Judges You</em>
+            </h1>
+
+            <p class="date">
+                October 2026
+            </p>
+
+
+            <p>
+                There is something slightly evil about a hackathon where the thing
+                you're building is also the thing that's going to judge you.
+            </p>
+
+            <p>
+                DOGFOOD 2026 gave us 72 hours to build an open-source,
+                self-hostable hackathon platform that could actually be used to
+                run and judge hackathons. It came with something most hackathons
+                don't: a Python file that doesn't care how pretty your application
+                looks.
+            </p>
+
+            <p>
+                Seven HTTP requests. A handful of seeded users and projects.
+                Your portal either behaves correctly or it doesn't.
+            </p>
+
+            <p>
+                We spent a lot of the build assuming we understood what those
+                seven requests actually meant.
+            </p>
+
+            <p>
+                We were wrong often enough that this felt worth writing down.
+            </p>
+
+
+            <h2>What is DOGFOOD?</h2>
+
+            <p>
+                DOGFOOD 2026 is a hackathon by Hackathon Raptors where the
+                challenge is, slightly recursively, to build the platform that
+                can run hackathons like this one.
+            </p>
+
+            <p>
+                The platform had to be open source, self-hostable and runnable
+                locally with:
+            </p>
+
+            <pre><code>docker compose up</code></pre>
+
+            <p>
+                No cloud account. No hosted database. No external API dependency.
+                The organizer should be able to clone the repository, start the
+                containers and have a working hackathon platform.
+            </p>
+
+            <p>
+                There was also a deliberately annoying little detail:
+                the organizers weren't going to manually click through our UI
+                to decide whether the required functionality worked.
+            </p>
+
+            <p>
+                They gave us <code>fixtures.json</code> and <code>run.py</code>.
+            </p>
+
+            <p>
+                The checker would make HTTP requests against our application and
+                verify things like public galleries, closed submissions,
+                judge isolation and organizer exports.
+            </p>
+
+            <p>
+                It was basically a tiny external user who had absolutely no
+                interest in our intentions.
+            </p>
+
+
+            <h2>The timeline</h2>
+
+            <pre><code>25 Sep 2026    DOGFOOD kickoff
+25 Sep 2026    POM exam
+26 Sep 2026    OOPS exam
+26 Sep 2026    Finally: actual building
+28 Sep 2026    Code freeze</code></pre>
+
+            <p>
+                Technically, the hackathon was 72 hours.
+            </p>
+
+            <p>
+                Practically, we had a little less than that.
+            </p>
+
+            <p>
+                Which made the first decision fairly obvious:
+                we weren't going to build everything.
+            </p>
+
+            <p>
+                The plan was to get T1 solid, push through T2, make the judging
+                system trustworthy, and only then start looking at the stretch
+                features.
+            </p>
+
+
+            <h2>Getting In: Reading <code>run.py</code></h2>
+
+            <p>
+                The first mistake we almost made was treating the acceptance
+                checker like documentation.
+            </p>
+
+            <p>
+                We read the spec, looked at the required routes and started
+                designing what felt like a normal REST API.
+            </p>
+
+            <p>
+                One of our first route ideas looked like this:
+            </p>
+
+            <pre><code>/api/judge/scores/{project_id}</code></pre>
+
+            <p>
+                Completely reasonable.
+            </p>
+
+            <p>
+                Except <code>run.py</code> doesn't actually template routes.
+            </p>
+
+            <p>
+                It resolves them using plain string concatenation:
+            </p>
+
+            <pre><code>probe = base + routes.get(
+    "peer_scores",
+    routes.get("judge_scores", "")
+)</code></pre>
+
+            <p>
+                There is no substitution happening there.
+            </p>
+
+            <p>
+                If you put <code>{project_id}</code> in the configuration,
+                that's what gets requested.
+            </p>
+
+            <p>
+                Literally.
+            </p>
+
+            <p>
+                So we changed the judge endpoint to work without a project ID:
+            </p>
+
+            <pre><code>GET /api/judge/scores</code></pre>
+
+            <p>
+                The API gets the judge identity from the authenticated session
+                and returns only the scores that judge is allowed to see.
+            </p>
+
+            <p>
+                The peer-score check was a little more awkward because the
+                checker needs an actual endpoint to probe while pretending to
+                be another judge.
+            </p>
+
+            <p>
+                We ended up resolving the seeded judge identity during startup
+                and writing the required value into the generated configuration
+                automatically.
+            </p>
+
+            <p>
+                It's a small piece of Python that waits for the application,
+                authenticates against the seeded accounts and prepares the
+                configuration before the acceptance run.
+            </p>
+
+            <p>
+                We wouldn't have built it if we had only read the prose.
+            </p>
+
+            <p>
+                Reading the actual checker mattered.
+            </p>
+
+
+            <h2>Finding #1: A closed event that returned 500</h2>
+
+            <p>
+                One of the simplest requirements sounds almost too boring to
+                get wrong:
+            </p>
+
+            <blockquote>
+                A participant cannot submit after the submission deadline.
+            </blockquote>
+
+            <p>
+                We had the check.
+            </p>
+
+            <p>
+                We had the correct date in the database.
+            </p>
+
+            <p>
+                We had tested the endpoint.
+            </p>
+
+            <p>
+                It worked.
+            </p>
+
+            <p>
+                Until we ran it against a different database backend.
+            </p>
+
+            <p>
+                Our SQLAlchemy model used:
+            </p>
+
+            <pre><code>DateTime(timezone=True)</code></pre>
+
+            <p>
+                PostgreSQL handled the value as a timezone-aware timestamp.
+                SQLite didn't have the same native timezone behaviour and handed
+                us back a naive datetime.
+            </p>
+
+            <p>
+                Then our code did this:
+            </p>
+
+            <pre><code>datetime.now(timezone.utc) &gt; submission_close</code></pre>
+
+            <p>
+                And Python quite reasonably responded with:
+            </p>
+
+            <pre><code>TypeError:
+can't compare offset-naive and offset-aware datetimes</code></pre>
+
+            <p>
+                The participant didn't get the expected 403.
+            </p>
+
+            <p>
+                They got a 500.
+            </p>
+
+            <p>
+                The fix itself was tiny: normalize the database timestamp into
+                an explicitly UTC-aware value before doing the comparison.
+            </p>
+
+            <p>
+                Finding it was the annoying part.
+            </p>
+
+            <p>
+                This became a recurring theme throughout the build:
+                code that was completely reasonable by inspection could still
+                be wrong once something real touched it.
+            </p>
+
+
+            <h2>Finding #2: Projects that disappeared from the leaderboard</h2>
+
+            <p>
+                The fixture data is intentionally messy.
+            </p>
+
+            <p>
+                Some projects have several reviews. Some have one.
+                Some have none.
+            </p>
+
+            <p>
+                We initially built our normalization pass by grouping directly
+                from the scores table.
+            </p>
+
+            <p>
+                Which creates a rather nasty problem.
+            </p>
+
+            <p>
+                What happens to a project with zero scores?
+            </p>
+
+            <p>
+                It doesn't get a score of zero.
+            </p>
+
+            <p>
+                It doesn't get marked as incomplete.
+            </p>
+
+            <p>
+                It simply doesn't appear in the grouping.
+            </p>
+
+            <p>
+                So it disappears.
+            </p>
+
+            <p>
+                Worse, the same problem could propagate into the CSV export
+                an organizer would actually download.
+            </p>
+
+            <p>
+                We caught this by deliberately creating a project with no
+                reviews and checking what the system returned.
+            </p>
+
+            <p>
+                The fix was to build the project list from the projects table
+                first and then join the available scores onto it:
+            </p>
+
+            <pre><code>projects
+    ↓
+join scores
+    ↓
+calculate available data
+    ↓
+mark insufficient data</code></pre>
+
+            <p>
+                An unreviewed project now still exists in the result.
+                It just tells us that there isn't enough data to rank it.
+            </p>
+
+            <p>
+                That distinction sounds small.
+            </p>
+
+            <p>
+                It isn't.
+            </p>
+
+            <p>
+                "There is no score yet" and "this project doesn't exist"
+                are two completely different statements.
+            </p>
+
+            <p>
+                A judging platform should never silently turn one into the
+                other.
+            </p>
+
+
+            <h2>Judging is not just averaging numbers</h2>
+
+            <p>
+                This was probably the most interesting part of the challenge.
+            </p>
+
+            <p>
+                Imagine two judges.
+            </p>
+
+            <p>
+                One gives almost everything between 8 and 10.
+                Another happily uses the entire scale.
+            </p>
+
+            <p>
+                A raw average treats those numbers as if the judges have the
+                same scoring behaviour.
+            </p>
+
+            <p>
+                They don't.
+            </p>
+
+            <p>
+                That's where cross-judge normalization comes in.
+            </p>
+
+            <p>
+                The fixture data even contains the kind of awkward cases that
+                expose a naive implementation: uneven review counts and judges
+                whose scoring behaviour is very different from everyone else's.
+            </p>
+
+            <p>
+                We didn't want normalization to become a magic black box that
+                simply produced a different leaderboard.
+            </p>
+
+            <p>
+                So we kept the raw and normalized values visible side by side.
+            </p>
+
+            <p>
+                If a project's position changes, there should be a way to
+                understand why.
+            </p>
+
+            <p>
+                The point isn't to make the numbers look nicer.
+            </p>
+
+            <p>
+                The point is to make the judging process more defensible.
+            </p>
+
+
+            <h2>Authentication is not authorization</h2>
+
+            <p>
+                This one sounds obvious until you're staring at an endpoint
+                that technically works.
+            </p>
+
+            <p>
+                Knowing who someone is doesn't tell you what they're allowed
+                to see.
+            </p>
+
+            <p>
+                The frontend can hide a button.
+            </p>
+
+            <p>
+                The backend has to enforce the rule.
+            </p>
+
+            <p>
+                A Judge A request should only return Judge A's permitted data.
+            </p>
+
+            <p>
+                Sending the same request as Judge B should not suddenly reveal
+                Judge A's scores.
+            </p>
+
+            <p>
+                And a participant knowing the endpoint URL shouldn't help
+                either.
+            </p>
+
+            <p>
+                We tested those boundaries with direct HTTP requests instead
+                of trusting the UI.
+            </p>
+
+            <p>
+                Because the acceptance checker doesn't care that the button
+                wasn't visible.
+            </p>
+
+            <p>
+                It just sends the request.
+            </p>
+
+
+            <h2>Finding #3: Docker found a dependency problem we didn't</h2>
+
+            <p>
+                One of the requirements was that the whole thing should work
+                from a clean environment.
+            </p>
+
+            <p>
+                No "install this version first."
+            </p>
+
+            <p>
+                No database already running somewhere on the laptop.
+            </p>
+
+            <p>
+                No cloud credentials hiding in <code>.env</code>.
+            </p>
+
+            <p>
+                Just:
+            </p>
+
+            <pre><code>docker compose up</code></pre>
+
+            <p>
+                We had pinned:
+            </p>
+
+            <pre><code>passlib[bcrypt]==1.7.4</code></pre>
+
+            <p>
+                but hadn't pinned the underlying <code>bcrypt</code> dependency.
+            </p>
+
+            <p>
+                On a clean build, Docker pulled a newer version.
+            </p>
+
+            <p>
+                Suddenly authentication was broken.
+            </p>
+
+            <p>
+                Password hashing and verification were throwing errors before
+                our application logic could do anything useful.
+            </p>
+
+            <p>
+                Nothing about the frontend looked broken.
+            </p>
+
+            <p>
+                Nothing about the authentication code looked suspicious.
+            </p>
+
+            <p>
+                Two dependencies simply disagreed.
+            </p>
+
+            <p>
+                Pinning the compatible version fixed it.
+            </p>
+
+            <p>
+                And that was probably the most useful Docker test we ran,
+                because it reminded us what the requirement was actually
+                asking for.
+            </p>
+
+            <p>
+                Not "does it work on our computers?"
+            </p>
+
+            <p>
+                "Can somebody else clone this and run it?"
+            </p>
+
+
+            <h2>The acceptance report became our debugging tool</h2>
+
+            <p>
+                At some point we stopped thinking of <code>run.py</code> as
+                the final exam.
+            </p>
+
+            <p>
+                It became our development tool.
+            </p>
+
+            <p>
+                Every failed check gave us a much better question than
+                "does the application look finished?"
+            </p>
+
+            <p>
+                Does the public gallery actually work without authentication?
+            </p>
+
+            <p>
+                Does a closed event really reject the POST?
+            </p>
+
+            <p>
+                Can Judge A read their scores?
+            </p>
+
+            <p>
+                Can Judge B read them too?
+            </p>
+
+            <p>
+                Can a participant reach the same endpoint?
+            </p>
+
+            <p>
+                Can the organizer actually export the data?
+            </p>
+
+            <p>
+                Those are behavioural questions.
+            </p>
+
+            <p>
+                And behavioural questions are much harder to fake than a
+                screenshot.
+            </p>
+
+
+            <h2>What we cut</h2>
+
+            <p>
+                DOGFOOD has a lot of things you can build once the core platform
+                works.
+            </p>
+
+            <p>
+                Public voting.
+            </p>
+
+            <p>
+                Anti-abuse systems.
+            </p>
+
+            <p>
+                APIs and webhooks.
+            </p>
+
+            <p>
+                Certificates.
+            </p>
+
+            <p>
+                Embeddable galleries.
+            </p>
+
+            <p>
+                More judging modes.
+            </p>
+
+            <p>
+                It would've been very easy to spend the last few hours adding
+                features and end up with something where everything existed,
+                but nothing was properly tested.
+            </p>
+
+            <p>
+                So we kept asking ourselves:
+            </p>
+
+            <blockquote>
+                What would we actually trust someone else to run?
+            </blockquote>
+
+            <p>
+                That question is much more useful than:
+            </p>
+
+            <blockquote>
+                How many features can we say we built?
+            </blockquote>
+
+            <p>
+                Some things had to wait.
+            </p>
+
+            <p>
+                I don't really regret that.
+            </p>
+
+
+            <h2>We used AI too</h2>
+
+            <p>
+                DOGFOOD explicitly allows AI tooling, and we used it.
+            </p>
+
+            <p>
+                A lot.
+            </p>
+
+            <p>
+                It helped with implementation, debugging, refactoring,
+                explaining errors and the usual "why is this returning a 500"
+                moments.
+            </p>
+
+            <p>
+                But AI didn't remove the hardest part of the build.
+            </p>
+
+            <p>
+                A model can produce code that looks completely reasonable.
+            </p>
+
+            <p>
+                So can a human.
+            </p>
+
+            <p>
+                Neither fact tells you whether the code actually works.
+            </p>
+
+            <p>
+                The only thing that settled that question was running it:
+                against the database, against the fixture data, inside Docker,
+                and from the wrong role trying to access something it shouldn't.
+            </p>
+
+
+            <h2>What we'd tell the next team</h2>
+
+            <p>
+                Almost every bug above had the same property.
+            </p>
+
+            <p>
+                It was invisible to code review.
+            </p>
+
+            <p>
+                A deadline check looked correct.
+            </p>
+
+            <p>
+                A SQL query looked correct.
+            </p>
+
+            <p>
+                A dependency file looked completely normal.
+            </p>
+
+            <p>
+                And all three were wrong when something real touched them.
+            </p>
+
+            <p>
+                We eventually started treating these as two completely
+                different states:
+            </p>
+
+            <blockquote>
+                "I traced it and it looks correct."
+            </blockquote>
+
+            <p>
+                and:
+            </p>
+
+            <blockquote>
+                "I ran it and here's what actually happened."
+            </blockquote>
+
+            <p>
+                Those are not the same statement.
+            </p>
+
+            <p>
+                Several of our bugs disappeared only after we stopped writing
+                "should pass" in our notes and replaced it with:
+            </p>
+
+            <pre><code>ran
+observed
+failed
+fixed
+ran again</code></pre>
+
+
+            <h2>Takeaways</h2>
+
+            <p>
+                The biggest lesson wasn't really about Docker, PostgreSQL,
+                FastAPI, normalization or even hackathons.
+            </p>
+
+            <p>
+                It was about trust.
+            </p>
+
+            <p>
+                We started by asking:
+            </p>
+
+            <blockquote>
+                What can we build in 72 hours?
+            </blockquote>
+
+            <p>
+                We ended up asking:
+            </p>
+
+            <blockquote>
+                What can we build that we'd actually trust?
+            </blockquote>
+
+            <p>
+                Those are very different questions.
+            </p>
+
+            <p>
+                Trust ended up living in all the boring places:
+                permissions, timestamps, joins, dependency versions,
+                empty datasets, direct HTTP requests and clean Docker builds.
+            </p>
+
+            <p>
+                Not the dashboard.
+            </p>
+
+            <p>
+                Not the landing page.
+            </p>
+
+            <p>
+                Not the screenshot that makes the project look finished.
+            </p>
+
+            <p>
+                The boring parts.
+            </p>
+
+            <p>
+                And honestly, those were the parts that made DOGFOOD interesting.
+            </p>
+
+
+            <p>
+                Thanks for reading.
+            </p>
+
+
+        </article>
+
+
+        <footer class="blog-footer">
+
+            <a href="index.html">
+                ← back to portfolio
+            </a>
+
+            <div class="socials">
+                <a href="https://github.com/yourusername">github</a>
+                <a href="https://x.com/yourusername">x</a>
+            </div>
+
+        </footer>
+
+    </main>
+
+</body>
+
+</html>
